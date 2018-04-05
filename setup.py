@@ -13,14 +13,14 @@ with open(path.join(here, 'README.rst')) as f:
 setup(
   name='sphinx-multibuild',
   packages=['sphinx_multibuild'],
-  version='1.0.2',
+  version='1.0.4',
   description='Allow sphinx to build with multiple source directories and watch for changes.',
   long_description=long_description,
   long_description_content_type='text/x-rst',
   author='Rowan Goemans',
   author_email='goemansrowan@gmail.com',
   url='https://github.com/rowanG077/sphinx-multibuild',
-  download_url='https://github.com/rowanG077/sphinx-multibuild/archive/1.0.2.tar.gz',
+  download_url='https://github.com/rowanG077/sphinx-multibuild/archive/1.0.4.tar.gz',
   keywords=['sphinx', 'autobuild', 'multiple-directories'],
   license='MIT',
   classifiers=[
@@ -31,7 +31,7 @@ setup(
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
   ],
-  install_requires=['watchdog'],
+  install_requires=['watchdog', 'sphinx'],
   python_requires='>=2.7',
   package_data={
     'sphinx_multibuild': ['README.rst'],

@@ -1,0 +1,11 @@
+MANIFEST.in
+README.rst
+setup.cfg
+sphinx_multibuild/__init__.py
+sphinx_multibuild/sphinx_multibuild.py
+sphinx_multibuild.egg-info/PKG-INFO
+sphinx_multibuild.egg-info/SOURCES.txt
+sphinx_multibuild.egg-info/dependency_links.txt
+sphinx_multibuild.egg-info/entry_points.txt
+sphinx_multibuild.egg-info/requires.txt
+sphinx_multibuild.egg-info/top_level.txt

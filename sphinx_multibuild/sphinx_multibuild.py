@@ -224,14 +224,14 @@ class SphinxMultiBuilder(object):
             self._sphinx_args.insert(buildIndex, dest_path)
             self._sphinx_args.insert(buildIndex, symlink_path)
         except ValueError:
-            self._sphinx_args.extend([args.tempdir, args.outputdir])
+            self._sphinx_args.extend([symlink_path, dest_path])
 
         self._sphinx_args.extend(sphinx_filenames_arg)
 
         # setup logger.
         self._logger = logging.getLogger(__name__)
 
-        # Check passed directories and make them if necessary/
+        # Check passed directories and make them if necessary.
         self._mkdir_p(dest_path)
         self._mkdir_p(symlink_path)
 
@@ -283,8 +283,6 @@ class SphinxMultiBuilder(object):
 
     def stop_autobuilding(self):
         self._observer.stop()
-
-    def join_autobuilder(self):
         self._observer.join()
 
 def main():
@@ -373,8 +371,6 @@ want the output to be placed')
                 time.sleep(1)
         except KeyboardInterrupt:
             builder.stop_autobuilding()
-
-        builder.join_autobuilder()
 
     sys.exit(builder.get_last_exit_code())
 

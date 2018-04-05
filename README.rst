@@ -10,17 +10,21 @@ Should work with Python >= 2.7 on Linux and Windows Vista or later.
 .. warning::
     Since symlinks on Windows require admin privilege this script has to run
     in admin mode. It works without admin privilege on Windows 10 creators update
-    when you have `enabled developer mode <https://blogs.windows.com/buildingapps/2016/12/02/symlinks-windows-10/>`_.
+    if you have `enabled developer mode <https://blogs.windows.com/buildingapps/2016/12/02/symlinks-windows-10/>`_.
 
 How to install
 --------------
 
 You can use pip install to install the package: ``pip install sphinx-multibuild``
 
+Sphinx-autobuild respects the ``SHPINXBUILD`` environment variable and will use the
+contents of that to build. If it is not set it defaults to the python
+executable with ``-msphinx`` as the argument.
+
 How to use from command line
 ----------------------------
 
-Output of the --help command:
+Output of the ``--help`` command:
 
 ::
 
@@ -68,11 +72,11 @@ Output of the --help command:
       -N                    See `sphinx-build -h`
       -P                    See `sphinx-build -h`
 
-Sphinx options are available and are passed through to 
-sphinx builder. The exception are the in- and output directories since those 
-are arguments are used by sphinx-multibuild itself. The -i specifies an input 
-and can be repeated multiple times. The -s options specifies the temporary 
-directory where symlinks are placed and the -o options sets the sphinx output 
+Sphinx options are available and are passed through to
+sphinx builder. The exception are the in- and output directories since those
+arguments are used by sphinx-multibuild itself. The -i specifies an input
+and can be repeated multiple times. The -s options specifies the temporary
+directory where symlinks are placed and the -o options sets the sphinx output
 directory. Please note that no real files or directories may be placed in the
 temporary directory.
 
@@ -84,15 +88,15 @@ Here is another example where the -M builder is used to build latexpdf in a sing
 
     ``sphinx-multibuild -i ../doc -i ./build/doc/apigen -s ./build/doc/tmp -o ./build/doc/sphinx -M latexpdf -c ./build/doc/sphinx``
 
-Using the -m option will continously build the output when anything changes in any of the input directories.
+Using the ``-m`` option will continuously build the output when anything changes in any of the input directories.
 
     ``sphinx-multibuild -m -i ../doc -i ./build/doc/apigen -s ./build/doc/tmp -o ./build/doc/sphinx -b html -c ./build/doc/sphinx``
 
 
 How to use as module
 --------------------
-It is also possible to use sphinx-autobuild as a module and control the building 
-programmatically. There is a single class ``SphinxMultiBuilder`` that you can 
+It is also possible to use sphinx-autobuild as a module and control the building
+programmatically. There is a single class ``SphinxMultiBuilder`` that you can
 instantiate and create builds or automatically build on change:
 
 
@@ -121,13 +125,13 @@ instantiate and create builds or automatically build on change:
                                  "/tmp",
                                  # Output directory
                                  "./build/sphinx"
-                                 # Sphinx arguments this doesn't include the in- 
+                                 # Sphinx arguments, this doesn't include the in- 
                                  # and output directory and filenames argments.
                                  ["-m", "html", "-c", "./build/doc"], 
-                                  Specific files to build(optional).
+                                 # Specific files to build(optional).
                                  ["index.rst"],
                                  # Callback that will be called when symlinking
-                                 # error occurs during autobuilding.
+                                 # error occurs during autobuilding. (optional)
                                  handle_autobuild_error)
     # build once
     builder.build()
