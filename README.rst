@@ -5,7 +5,7 @@ automatic build on change feature. This works by symlinking all the input
 directories to a single temporary directory and then running sphinx on that
 temporary directory.
 
-Should work on Python >= 2.7, Linux and Windows Vista or later.
+Should work with Python >= 2.7 on Linux and Windows Vista or later.
 
 .. warning::
     Since symlinks on Windows require admin privilege this script has to run
@@ -31,7 +31,9 @@ Output of the --help command:
                                 [-W] [-T] [-N] [-P]
                                 [filenames [filenames ...]]
 
-    Build multiple sphinx documentation directories into a single document. Also supports automatic build on change. Sphinx options arguments are passed through.
+    Build multiple sphinx documentation directories into a single document.
+    Also supports automatic build on change. Sphinx options arguments are 
+    passed through.
 
     positional arguments:
       filenames             See \`sphinx-build -h\`
@@ -68,12 +70,13 @@ Output of the --help command:
 
 Sphinx options are available and are passed through to 
 sphinx builder. The exception are the in- and output directories since those 
-are used arguments to sphinx-multibuild itself. The -i specifies an input 
+are arguments are used by sphinx-multibuild itself. The -i specifies an input 
 and can be repeated multiple times. The -s options specifies the temporary 
 directory where symlinks are placed and the -o options sets the sphinx output 
-directory.
+directory. Please note that no real files or directories may be placed in the
+temporary directory.
 
-Here is an example of building a document with multiple two input directories:
+Here is an example of building a document with two input directories:
 
     ``sphinx-multibuild -i ../doc -i ./build/doc/apigen -s ./build/doc/tmp -o ./build/doc/sphinx -b html -c ./build/doc/sphinx``
 
@@ -88,9 +91,9 @@ Using the -m option will continously build the output when anything changes in a
 
 How to use as module
 --------------------
-It is also possible to use it as a module and control the building 
+It is also possible to use sphinx-autobuild as a module and control the building 
 programmatically. There is a single class ``SphinxMultiBuilder`` that you can 
-instantiate and create builds or automatically build:
+instantiate and create builds or automatically build on change:
 
 
 .. code-block:: python
@@ -115,13 +118,14 @@ instantiate and create builds or automatically build:
     builder = SphinxMultiBuilder(["./doc", "./build/api/doc"], # input directories
                                  "/tmp", # Temp directory where symlinks are placed.
                                  "./build/sphinx" # Output directory
-                                 ["-m", "html", "-c", "./build/doc"], # Sphinx arguments this doesn't include the in- and output directory.
+                                 ["-m", "html", "-c", "./build/doc"], # Sphinx arguments this doesn't include the in- and output directory
+                                                                      # And filenames argments.
                                  ["index.rst"], # Specific files to build(optional).
                                  handle_autobuild_error) # Handler that will be symlink en symlink error oc autobuild(optional).
     # build once
     builder.build()
 
-    # start autobuilding on change in any input directory. untill ctrl+c is pressed.
+    # start autobuilding on change in any input directory until ctrl+c is pressed.
     builder.start_autobuilding()
     try:
         while True:
