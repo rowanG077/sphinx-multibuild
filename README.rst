@@ -36,7 +36,7 @@ Output of the --help command:
     passed through.
 
     positional arguments:
-      filenames             See \`sphinx-build -h\`
+      filenames             See `sphinx-build -h`
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -48,25 +48,25 @@ Output of the --help command:
                             The directory where you want the output to be placed
       -q, --quiet           Only print warnings and errors.
       -m, --monitor         Monitor for changes and autobuild
-      -b builder            See \`sphinx-build -h\`
-      -M makebuilder        See \`sphinx-build -h\`
-      -a                    See \`sphinx-build -h\`
-      -E                    See \`sphinx-build -h\`
-      -d path               See \`sphinx-build -h\`
-      -j N                  See \`sphinx-build -h\`
-      -c path               See \`sphinx-build -h\`
-      -C                    See \`sphinx-build -h\`
-      -D <setting=value>    See \`sphinx-build -h\`
-      -t tag                See \`sphinx-build -h\`
-      -A <name=value>       See \`sphinx-build -h\`
-      -n                    See \`sphinx-build -h\`
-      -v                    See \`sphinx-build -h\`
-      -Q                    See \`sphinx-build -h\`
-      -w files              See \`sphinx-build -h\`
-      -W                    See \`sphinx-build -h\`
-      -T                    See \`sphinx-build -h\`
-      -N                    See \`sphinx-build -h\`
-      -P                    See \`sphinx-build -h\`
+      -b builder            See `sphinx-build -h`
+      -M makebuilder        See `sphinx-build -h`
+      -a                    See `sphinx-build -h`
+      -E                    See `sphinx-build -h`
+      -d path               See `sphinx-build -h`
+      -j N                  See `sphinx-build -h`
+      -c path               See `sphinx-build -h`
+      -C                    See `sphinx-build -h`
+      -D <setting=value>    See `sphinx-build -h`
+      -t tag                See `sphinx-build -h`
+      -A <name=value>       See `sphinx-build -h`
+      -n                    See `sphinx-build -h`
+      -v                    See `sphinx-build -h`
+      -Q                    See `sphinx-build -h`
+      -w files              See `sphinx-build -h`
+      -W                    See `sphinx-build -h`
+      -T                    See `sphinx-build -h`
+      -N                    See `sphinx-build -h`
+      -P                    See `sphinx-build -h`
 
 Sphinx options are available and are passed through to 
 sphinx builder. The exception are the in- and output directories since those 
@@ -115,13 +115,20 @@ instantiate and create builds or automatically build on change:
         pass
 
     # Instantiate multi builder. The last two params are optional.
-    builder = SphinxMultiBuilder(["./doc", "./build/api/doc"], # input directories
-                                 "/tmp", # Temp directory where symlinks are placed.
-                                 "./build/sphinx" # Output directory
-                                 ["-m", "html", "-c", "./build/doc"], # Sphinx arguments this doesn't include the in- and output directory
-                                                                      # And filenames argments.
-                                 ["index.rst"], # Specific files to build(optional).
-                                 handle_autobuild_error) # Handler that will be symlink en symlink error oc autobuild(optional).
+    builder = SphinxMultiBuilder(# input directories
+                                 ["./doc", "./build/api/doc"],
+                                 # Temp directory where symlinks are placed.
+                                 "/tmp",
+                                 # Output directory
+                                 "./build/sphinx"
+                                 # Sphinx arguments this doesn't include the in- 
+                                 # and output directory and filenames argments.
+                                 ["-m", "html", "-c", "./build/doc"], 
+                                  Specific files to build(optional).
+                                 ["index.rst"],
+                                 # Callback that will be called when symlinking
+                                 # error occurs during autobuilding.
+                                 handle_autobuild_error)
     # build once
     builder.build()
 
