@@ -178,7 +178,13 @@ Removing old symlink and creating new\
 class SphinxBuilder(object):
     def __init__(self, args, build_event):
         self.ret_code = 1
-        self._args = ['sphinx-build'] + args
+
+        env = os.environ.get('SPHINXBUILD', None)
+        if env:
+            self._args = [env] + args
+        else:
+            self._args = [sys.executable, '-msphinx'] + args
+
         self._build_event = build_event
         self._builder_thread = threading.Thread(target=self._builder)
         self._builder_thread.daemon = True
