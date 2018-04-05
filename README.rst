@@ -144,7 +144,5 @@ instantiate and create builds or automatically build on change:
     except KeyboardInterrupt:
         builder.stop_autobuilding()
 
-    builder.join_autobuilder()
-
     # return the last exit code sphinx build returned had as program exit code.
     sys.exit(builder.get_last_exit_code())
