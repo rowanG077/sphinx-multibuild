@@ -1,3 +1,0 @@
-[console_scripts]
-sphinx-multibuild = sphinx_multibuild.sphinx_multibuild:main
-
