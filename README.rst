@@ -54,9 +54,9 @@ Output of the --help command:
       -j N                  See \`sphinx-build -h\`
       -c path               See \`sphinx-build -h\`
       -C                    See \`sphinx-build -h\`
-      -D <setting=value>      See \`sphinx-build -h\`
+      -D <setting=value>    See \`sphinx-build -h\`
       -t tag                See \`sphinx-build -h\`
-      -A <name=value>         See \`sphinx-build -h\`
+      -A <name=value>       See \`sphinx-build -h\`
       -n                    See \`sphinx-build -h\`
       -v                    See \`sphinx-build -h\`
       -Q                    See \`sphinx-build -h\`
