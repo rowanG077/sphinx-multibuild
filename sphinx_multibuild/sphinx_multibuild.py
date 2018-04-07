@@ -3,15 +3,52 @@
 from __future__ import print_function
 
 import argparse
-import os
 import errno
-import sys
-import time
 import logging
-import threading
+import os
 import subprocess
-from watchdog.observers import Observer
+import sys
+import threading
+import time
+
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+
+
+# buffers events until a specified amount of seconds
+# without set has ellapsed.
+# has the same interface as threading.Event
+class _BufferedEvent(object):
+    def __init__(self, buffer_time_seconds):
+        self._buffer_time_seconds = buffer_time_seconds
+        self._ev = threading.Event()
+        self._internal_ev = threading.Event()
+        self._thread = threading.Thread(target=self._bufferer)
+        self._thread.daemon = True
+        self._thread.start()
+
+    def _bufferer(self):
+        while True:
+            self._internal_ev.wait()
+            self._internal_ev.clear()
+            time.sleep(self._buffer_time_seconds)
+            if not self._internal_ev.is_set():
+                self._ev.set()
+
+    def is_set(self):
+        return self._ev.is_set()
+
+    def isSet(self):
+        return self._ev.isSet()
+
+    def clear(self):
+        self._ev.clear()
+
+    def set(self):
+        self._internal_ev.set()
+
+    def wait(self, **kwargs):
+        self._ev.wait(**kwargs)
 
 
 class _SymlinkHandler(FileSystemEventHandler):
@@ -252,7 +289,7 @@ class SphinxMultiBuilder(object):
             input_paths[i] = os.path.normpath(os.path.abspath(e))
 
         # create the sphinx builder and the directory observers.
-        self._changed_event = threading.Event()
+        self._changed_event = _BufferedEvent(1)
         self._builder = _SphinxBuilder(sphinx_args, self._changed_event,
                                        self._logger)
         self._handlers = [_SymlinkHandler(p, symlink_path, self._changed_event,
@@ -284,6 +321,7 @@ class SphinxMultiBuilder(object):
     def stop_autobuilding(self):
         self._observer.stop()
         self._observer.join()
+
 
 def main():
     SHPINX_OPTS = (
