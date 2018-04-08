@@ -51,34 +51,9 @@ class _BufferedEvent(object):
         self._ev.wait(**kwargs)
 
 
-class _SymlinkHandler(FileSystemEventHandler):
-    def __init__(self, source_dir, symlink_dir, build_event, logger,
-                 symlink_error_callback):
-        self._setup_link_functions()
-        self.source_dir = os.path.normpath(os.path.abspath(source_dir))
-        self.symlink_dir = os.path.normpath(os.path.abspath(symlink_dir))
-        self._build_event = build_event
-        self._logger = logger
-
-        if symlink_error_callback is None:
-            self._error_callback = lambda p, e: None
-        else:
-            self._error_callback = symlink_error_callback
-
-        for n in os.listdir(self.source_dir):
-            try:
-                path = os.path.abspath(os.path.join(self.source_dir, n))
-                msg = 'Creating initial symlink: %s' % path
-                self._logger.info(msg)
-                self._create_link(path)
-            except Exception as e:
-                msg = 'Failed to create symlink: %s' % str(e)
-                self._logger.error(msg)
-                raise e
-
-    def _setup_link_functions(self):
-        # small hackerino for windows since python doesn't have symlink
-        # support on version 2.7.
+# Shim class to allow windows to symlink the same as linux on python 2.7
+class _SymlinkShim(object):
+    def __init__(self):
         if os.name == 'nt':
             import ctypes
             win = ctypes.windll
@@ -103,7 +78,7 @@ class _SymlinkHandler(FileSystemEventHandler):
                 return (attributes & FILE_ATTRIBUTE_REPARSE_POINT) > 0
 
             def win32_unlink(path):
-                if os.path.islink(path) is False:
+                if win32_is_symlink(path) is False:
                     raise OSError("unlink only possible with symlink.")
 
                 if os.path.isdir(path):
@@ -113,11 +88,46 @@ class _SymlinkHandler(FileSystemEventHandler):
 
             self._link = win32_create_symlink
             self._unlink = win32_unlink
-            self._islink = win32_is_symlink
+            self._is_link = win32_is_symlink
         else:
             self._link = os.symlink
             self._unlink = os.unlink
-            self._islink = os.path.islink
+            self._is_link = os.path.islink
+
+    def link(self, src, dst):
+        return self._link(src, dst)
+
+    def is_link(self, path):
+        return self._is_link(path)
+
+    def unlink(self, path):
+        return self._unlink(path)
+
+
+class _SymlinkHandler(FileSystemEventHandler):
+    def __init__(self, source_dir, symlink_dir, build_event, logger, symlinker,
+                 symlink_error_callback):
+        self.source_dir = os.path.normpath(os.path.abspath(source_dir))
+        self.symlink_dir = os.path.normpath(os.path.abspath(symlink_dir))
+        self._build_event = build_event
+        self._symlinker = symlinker
+        self._logger = logger
+
+        if symlink_error_callback is None:
+            self._error_callback = lambda p, e: None
+        else:
+            self._error_callback = symlink_error_callback
+
+        for n in os.listdir(self.source_dir):
+            try:
+                path = os.path.abspath(os.path.join(self.source_dir, n))
+                msg = 'Creating initial symlink: %s' % path
+                self._logger.info(msg)
+                self._create_link(path)
+            except Exception as e:
+                msg = 'Failed to create symlink: %s' % str(e)
+                self._logger.error(msg)
+                raise e
 
     def on_moved(self, event):
         if (self._is_source_dir(event.src_path) or
@@ -183,13 +193,14 @@ Removing old symlink and creating new' % (event.src_path, event.dest_path)
 
     def _create_link(self, target):
         self._delete_link(target)
-        self._link(self._get_source(target), self._get_target(target))
+        self._symlinker.link(self._get_source(target),
+                             self._get_target(target))
 
     def _delete_link(self, target):
         link = self._get_target(target)
-        if not self._islink(link):
+        if not self._symlinker.is_link(link):
             return
-        self._unlink(link)
+        self._symlinker.unlink(link)
 
     def _is_source_dir(self, target):
         target = os.path.normpath(os.path.abspath(target))
@@ -272,10 +283,12 @@ class SphinxMultiBuilder(object):
         self._mkdir_p(dest_path)
         self._mkdir_p(symlink_path)
 
+        symlinker = _SymlinkShim()
+
         for n in os.listdir(symlink_path):
             path = os.path.abspath(os.path.join(symlink_path, n))
-            if os.path.islink(path):
-                os.unlink(path)
+            if symlinker.is_link(path):
+                symlinker.unlink(path)
             else:
                 msg = 'File in symlinkpath is not a symlink: %s' % path
                 self._logger.error(msg)
@@ -293,7 +306,8 @@ class SphinxMultiBuilder(object):
         self._builder = _SphinxBuilder(sphinx_args, self._changed_event,
                                        self._logger)
         self._handlers = [_SymlinkHandler(p, symlink_path, self._changed_event,
-                                          self._logger, symlink_error_callback)
+                                          self._logger, symlinker,
+                                          symlink_error_callback)
                           for p in input_paths]
 
         self._observer = Observer()
