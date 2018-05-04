@@ -1,3 +1,4 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
-from sphinx_multibuild import SphinxMultiBuilder
+from __future__ import absolute_import
+from .sphinx_multibuild import SphinxMultiBuilder
