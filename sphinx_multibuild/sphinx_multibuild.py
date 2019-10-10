@@ -55,6 +55,10 @@ class _BufferedEvent(object):
 class _SymlinkShim(object):
     def __init__(self):
         if os.name == 'nt':
+            # python3 doesn't have unicode function.
+            # It simple uses str
+            to_unicode = str if sys.version_info[0] == 3 else unicode
+
             import ctypes
             win = ctypes.windll
 
@@ -64,7 +68,7 @@ class _SymlinkShim(object):
                 flags = 1 if src is not None and os.path.isdir(src) else 0
                 flags = flags | 2
                 res = win.kernel32.CreateSymbolicLinkW(
-                    unicode(dst), unicode(src), flags)
+                    to_unicode(dst), to_unicode(src), flags)
                 if not res:
                     raise OSError(str(win.kernel32.GetLastError()))
 
@@ -74,7 +78,7 @@ class _SymlinkShim(object):
 
                 FILE_ATTRIBUTE_REPARSE_POINT = 0x0400
                 attributes = win.kernel32.GetFileAttributesW(
-                    unicode(path))
+                    to_unicode(path))
                 return (attributes & FILE_ATTRIBUTE_REPARSE_POINT) > 0
 
             def win32_unlink(path):
@@ -237,6 +241,8 @@ class _SphinxBuilder(object):
         else:
             self._args = [sys.executable, '-msphinx'] + args
 
+        print(self._args)
+
         self._build_event = build_event
         self._logger = logger
         self._builder_thread = threading.Thread(target=self._builder)
@@ -302,6 +308,7 @@ class SphinxMultiBuilder(object):
             input_paths[i] = os.path.normpath(os.path.abspath(e))
 
         # create the sphinx builder and the directory observers.
+        print("1")
         self._changed_event = _BufferedEvent(1)
         self._builder = _SphinxBuilder(sphinx_args, self._changed_event,
                                        self._logger)
@@ -313,6 +320,7 @@ class SphinxMultiBuilder(object):
         self._observer = Observer()
         for h in self._handlers:
             self._observer.schedule(h, h.source_dir, recursive=True)
+        print("2")
 
     def _mkdir_p(self, path):
         try:
